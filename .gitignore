@@ -39,3 +39,20 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+
+/lib/generated/prisma
+
+# rapor dosyaları
+GrandStay_YM_Raporu.md
+GrandStay_Proje_Raporu.md
+sablon_icerik.txt
+read_pdf.py
+Uncodixfy.md
+Yazılım Mühendisliği PROJE ÖRNEK.pdf
+/.agents
+/.next
+/.omc
+/.opencode
+/.planning
+

@@ -1,0 +1,165 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Hotel {
+  id        String   @id @default(cuid())
+  name      String
+  address   String
+  city      String
+  phone     String
+  stars     Int      @default(5)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  rooms           Room[]
+  staff           User[]
+  reservations    Reservation[]
+  serviceRequests ServiceRequest[]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("RECEPTIONIST")
+  hotelId   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  hotel             Hotel?             @relation(fields: [hotelId], references: [id])
+  housekeepingTasks HousekeepingTask[]
+  serviceRequests   ServiceRequest[]
+  notifications     Notification[]
+}
+
+model Room {
+  id            String   @id @default(cuid())
+  number        String
+  floor         Int
+  type          String   @default("SINGLE")
+  capacity      Int      @default(2)
+  pricePerNight Float
+  status        String   @default("AVAILABLE")
+  amenities     String   @default("[]")
+  hotelId       String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  hotel             Hotel              @relation(fields: [hotelId], references: [id])
+  reservations      Reservation[]
+  housekeepingTasks HousekeepingTask[]
+
+  @@unique([hotelId, number])
+}
+
+model Guest {
+  id          String   @id @default(cuid())
+  firstName   String
+  lastName    String
+  email       String?
+  phone       String?
+  idNumber    String   @unique
+  nationality String   @default("TR")
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  reservations    Reservation[]
+  serviceRequests ServiceRequest[]
+}
+
+model Reservation {
+  id         String   @id @default(cuid())
+  guestId    String
+  roomId     String
+  hotelId    String
+  checkIn    DateTime
+  checkOut   DateTime
+  status     String   @default("PENDING")
+  totalPrice Float
+  currency   String   @default("TRY")
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  guest   Guest    @relation(fields: [guestId], references: [id])
+  room    Room     @relation(fields: [roomId], references: [id])
+  hotel   Hotel    @relation(fields: [hotelId], references: [id])
+  invoice Invoice?
+}
+
+model Invoice {
+  id            String    @id @default(cuid())
+  reservationId String    @unique
+  items         String    @default("[]")
+  subtotal      Float
+  tax           Float
+  total         Float
+  currency      String    @default("TRY")
+  exchangeRate  Float     @default(1.0)
+  paymentMethod String?
+  paidAt        DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  reservation Reservation @relation(fields: [reservationId], references: [id])
+}
+
+model HousekeepingTask {
+  id           String    @id @default(cuid())
+  roomId       String
+  assignedToId String?
+  type         String    @default("CLEANING")
+  status       String    @default("PENDING")
+  priority     String    @default("NORMAL")
+  notes        String?
+  completedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  room       Room  @relation(fields: [roomId], references: [id])
+  assignedTo User? @relation(fields: [assignedToId], references: [id])
+}
+
+model ServiceRequest {
+  id           String    @id @default(cuid())
+  guestId      String
+  hotelId      String
+  type         String
+  description  String
+  status       String    @default("PENDING")
+  priority     String    @default("NORMAL")
+  assignedToId String?
+  notes        String?
+  completedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  guest      Guest  @relation(fields: [guestId], references: [id])
+  hotel      Hotel  @relation(fields: [hotelId], references: [id])
+  assignedTo User?  @relation(fields: [assignedToId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      String   @default("INFO")
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}

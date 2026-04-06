@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GrandStay — Otel Yönetim Sistemi
 
-## Getting Started
+Web tabanlı, tam yığın otel yönetim uygulaması. Oda yönetimi, rezervasyon, check-in/check-out, faturalandırma, kat hizmetleri, concierge ve raporlama işlevlerini tek platformda sunar.
 
-First, run the development server:
+## Teknoloji Yığını
+
+| Katman | Teknoloji |
+|---|---|
+| Framework | Next.js 16 (App Router) |
+| UI | React 19, Tailwind CSS 4, shadcn/ui |
+| Dil | TypeScript |
+| Veritabanı | SQLite (`dev.db`) |
+| ORM | Prisma 7 + better-sqlite3 |
+| İkonlar | Phosphor Icons |
+| Grafikler | Recharts |
+| Kimlik Doğrulama | Cookie tabanlı session + bcryptjs |
+
+## Kurulum
 
 ```bash
+# 1. Bağımlılıkları kur
+npm install
+
+# 2. Ortam değişkenlerini tanımla
+cp .env.example .env
+# DATABASE_URL ve SESSION_SECRET değerlerini doldur
+
+# 3. Prisma istemcisini üret
+npx prisma generate
+
+# 4. Veritabanını oluştur
+npx prisma db push
+
+# 5. Örnek verileri yükle
+npx prisma db seed
+
+# 6. Geliştirme sunucusunu başlat
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Uygulama varsayılan olarak [http://localhost:3000](http://localhost:3000) adresinde çalışır.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Kullanıcı Rolleri
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Rol | Yetkiler |
+|---|---|
+| `ADMIN` | Tüm modüller, otel ve personel yönetimi |
+| `MANAGER` | Oda, rezervasyon, raporlar, kat hizmetleri |
+| `RECEPTIONIST` | Misafir, rezervasyon, check-in/out, fatura |
+| `HOUSEKEEPING` | Kat hizmetleri görevleri |
+| `CONCIERGE` | Misafir hizmet talepleri |
 
-## Learn More
+## Proje Yapısı
 
-To learn more about Next.js, take a look at the following resources:
+```
+├── app/              # Next.js App Router sayfaları ve layout'lar
+├── actions/          # Sunucu taraflı veri işlemleri (Server Actions)
+├── components/       # React bileşenleri (özellik bazlı)
+│   └── ui/           # shadcn/ui temel bileşenleri
+├── lib/              # Yardımcı araçlar, DB istemcisi, auth
+├── patterns/
+│   ├── state/        # State Pattern — oda durum yönetimi
+│   └── adapter/      # Adapter Pattern — para birimi dönüşümü
+├── prisma/
+│   ├── schema.prisma # Veri modeli
+│   └── seed.ts       # Örnek veri yükleme betiği
+├── types/            # TypeScript tip tanımları
+└── hooks/            # Özel React hook'ları
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Geliştirme Komutları
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run dev          # Geliştirme sunucusu
+npm run build        # Üretim derlemesi
+npm run lint         # ESLint denetimi
+npx tsc --noEmit     # Tip kontrolü
+npx prisma studio    # Veritabanı görsel arayüzü
+npx prisma db push   # Şema değişikliğini uygula
+```
